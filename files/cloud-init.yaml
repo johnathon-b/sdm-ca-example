@@ -1,0 +1,27 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+groups:
+    - sudo
+
+users:
+    - name: sdm
+      lock_passwd: true
+      shell: /bin/bash
+      groups: sudo
+      sudo: ALL=(ALL) NOPASSWD:ALL
+
+write_files:
+    -   path: /etc/ssh/sdm_ca.pub
+        content: |
+            ${sdm_pub_key}
+    -   path: /etc/ssh/sshd_config
+        content: |
+            TrustedUserCAKeys /etc/ssh/sdm_ca.pub
+        append: true
+
+runcmd:
+  - [ systemctl, restart, ssh ]
